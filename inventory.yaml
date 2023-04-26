@@ -1,0 +1,8 @@
+all:
+  children:
+    osbuild_nodes:
+      hosts:
+        192.168.122.141
+      vars:
+        ansible_user: root
+        ansible_ssh_pass: redhat

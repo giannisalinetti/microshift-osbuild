@@ -1,0 +1,88 @@
+---
+- name: Prepare RHEL8 OSBuild node
+  hosts: osbuild_nodes
+  become: true
+  vars_files:
+    - vars.yaml
+  tasks:
+    - ansible.builtin.set_fact:
+        root_fs: "{{ ansible_mounts | first }}"
+
+    - ansible.builtin.set_fact:
+        root_size_available: "{{ root_fs.size_available }}"
+
+    - ansible.builtin.fail:
+        msg: "Available disk space is {{ root_size_available }} bytes, increase disk size before proceeding."
+      when: (root_size_available | int ) < free_size_min
+
+    - name: Enable repositories
+      ansible.builtin.shell: subscription-manager repos --enable {{ item }}
+      loop: "{{ yum_repositories }}"
+      tags: enable_repos
+
+    - name: Upgrade RHEL packages
+      ansible.builtin.yum:
+        name: "*"
+        state: latest
+
+    - name: Install required packages
+      ansible.builtin.yum:
+        name: "{{ required_packages }}"
+        state: present
+
+    - name: Enable Cockpit socket
+      ansible.builtin.systemd:
+        name: cockpit.socket
+        state: started
+        enabled: yes
+
+    - name: Enable OSBuild Composer socket
+      ansible.builtin.systemd:
+        name: osbuild-composer.socket
+        state: started
+        enabled: yes
+
+    - name: Prepare local Microshift repo
+      ansible.builtin.file:
+        path: "{{ microshift_local_repo }}"
+        state: directory
+        mode: 0755
+
+    - name: Sync local content for Microshift repository
+      ansible.builtin.shell: >
+        reposync 
+        --arch={{ ansible_architecture }}
+        --arch=noarch 
+        --gpgcheck 
+        --download-path {{ microshift_local_repo }} 
+        --repo=rhocp-4.12-for-rhel-8-x86_64-rpms 
+        --repo=fast-datapath-for-rhel-8-x86_64-rpms
+      async: 1000
+      poll: 0
+      register: microshift_reposync
+
+    - name: Check reposync status (long time task)
+      ansible.builtin.async_status:
+        jid: "{{ microshift_reposync.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 500
+      delay: 10
+
+    - name: Remove CoreOS packages
+      ansible.builtin.shell: |
+        find {{ microshift_local_repo }} -name \*coreos\* -print -exec rm -f {} \;
+
+    - name: Create local Microshift repository
+      ansible.builtin.shell: |
+        createrepo {{ microshift_local_repo }}
+
+    - name: Generate Microshift repository toml
+      ansible.builtin.template:
+        src: templates/microshift.toml.jinja2
+        dest: "{{ microshift_local_repo }}/microshift.toml"
+        mode: 0644
+
+    - name: Add repo to OSBuild sources
+      ansible.builtin.shell: |
+        composer-cli sources add {{ microshift_local_repo }}/microshift.toml

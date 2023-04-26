@@ -1,0 +1,23 @@
+---
+# Minimum available size set to 16GB
+free_size_min: 17179869184
+# Yum repositories to be enabled on build nodes
+yum_repositories:
+  - fast-datapath-for-rhel-8-x86_64-rpms
+  - rhel-8-for-x86_64-appstream-rpms
+  - rhel-8-for-x86_64-baseos-rpms
+  - rhocp-4.12-for-rhel-8-x86_64-rpms
+# Required packages on build nodes
+required_packages:
+  - createrepo
+  - yum-utils
+  - lorax 
+  - skopeo 
+  - composer-cli 
+  - cockpit-composer
+  - podman 
+  - genisoimage
+  - syslinux 
+  - isomd5sum
+# Custom path of local Microshift repo
+microshift_local_repo: /var/repos/microshift-local
