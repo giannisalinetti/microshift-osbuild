@@ -2,7 +2,7 @@ all:
   children:
     osbuild_nodes:
       hosts:
-        192.168.122.141
+        # Replace with host(s)
       vars:
-        ansible_user: root
-        ansible_ssh_pass: redhat
+        # ansible_user: root
+        # ansible_ssh_pass: redhat
