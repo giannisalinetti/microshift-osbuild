@@ -1,0 +1,5 @@
+---
+- ansible.builtin.import_playbook: 00-prepare-build-node.yaml
+- ansible.builtin.import_playbook: 01-build-microshift-image.yaml
+- ansible.builtin.import_playbook: 02-create-rhde-iso.yaml
+

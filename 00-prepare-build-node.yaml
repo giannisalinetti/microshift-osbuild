@@ -2,6 +2,7 @@
 - name: Prepare RHEL8 OSBuild node
   hosts: osbuild_nodes
   become: true
+  tags: prepare_build_node
   vars_files:
     - vars.yaml
   tasks:
@@ -18,7 +19,6 @@
     - name: Enable repositories
       ansible.builtin.shell: subscription-manager repos --enable {{ item }}
       loop: "{{ yum_repositories }}"
-      tags: enable_repos
 
     - name: Upgrade RHEL packages
       ansible.builtin.yum:
@@ -79,7 +79,7 @@
 
     - name: Generate Microshift repository toml
       ansible.builtin.template:
-        src: templates/microshift.toml.jinja2
+        src: templates/microshift.toml.j2
         dest: "{{ microshift_local_repo }}/microshift.toml"
         mode: 0644
 

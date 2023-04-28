@@ -1,0 +1,42 @@
+name = "{{ blueprint_name }}"
+description = "RHDE Microshift Image"
+version = "1.0.0"
+modules = []
+groups = []
+
+[[packages]]
+name = "microshift"
+version = "*"
+
+[[packages]]
+name = "openshift-clients"
+version = "*"
+
+[[packages]]
+name = "git"
+version = "*"
+
+[[packages]]
+name = "iputils"
+version = "*"
+
+[[packages]]
+name = "bind-utils"
+version = "*"
+
+[[packages]]
+name = "net-tools"
+version = "*"
+
+[[packages]]
+name = "iotop"
+version = "*"
+
+[[packages]]
+name = "redhat-release"
+version = "*"
+
+[customizations]
+
+[customizations.services]
+enabled = ["microshift"]

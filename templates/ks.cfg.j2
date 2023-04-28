@@ -1,0 +1,39 @@
+network  --bootproto=dhcp --device=enp1s0 --onboot=off --ipv6=auto 
+network  --bootproto=dhcp --device=enp2s0 --onboot=on --ipv6=auto --activate
+keyboard --xlayouts='us'
+lang en_US.UTF-8
+timezone America/Chicago --isUtc
+zerombr
+ignoredisk --only-use=sda
+clearpart --all --initlabel
+part /boot/efi --size 512 --asprimary --fstype=vfat --ondrive=sda
+part /boot --size 1024 --asprimary --fstype=xfs --ondrive=sda
+part pv.2 --size 1 --grow --fstype=xfs --ondrive=sda
+volgroup rhel --pesize=32768 pv.2
+logvol / --fstype xfs --vgname rhel --size=98304 --name=root
+reboot
+text
+rootpw --iscrypted $6$JDSTC2MKBr35O1SM$ZKHoLV29XAoOITHKj00HnKSJ9AUFDgCeM9UY4907dBsy9ICZNTYjsYLf/VjGmOvE422gBwQZwevN/1vB6mBSl1
+user --groups=wheel --name=bschmaus --password=$6$taTBd76gNB99NquE$RON0n03WXShKLYc1eLIYZUuWln0H9Q0MadBkEDtCKFGs.gA8SnimPwK03YkkNMYDXVJOL.7jIfUd7Mg6mtyaD0 --iscrypted --gecos="bschmaus"
+services --enabled=ostree-remount
+ostreesetup --nogpg --url=file:///run/install/repo/ostree/repo --osname=rhel --ref=rhel/8/x86_64/edge
+
+%post --log=/var/log/anaconda/post-install.log --erroronfail
+
+echo -e 'bschmaus\tALL=(ALL)\tNOPASSWD: ALL' >> /etc/sudoers
+
+echo -e 'url=http://remoteupdates.schmaustech.com:8000/repo' >> /etc/ostree/remotes.d/edge.conf
+
+mkdir -p /etc/crio
+cat > /etc/crio/openshift-pull-secret << PULLSECRETEOF
+***PUT YOUR PULL-SECRET HERE***
+PULLSECRETEOF
+chmod 600 /etc/crio/openshift-pull-secret
+
+firewall-offline-cmd --zone=trusted --add-source=10.42.0.0/16
+firewall-offline-cmd --zone=trusted --add-source=169.254.169.1
+firewall-offline-cmd --zone=public --add-port=6443/tcp
+firewall-offline-cmd --zone=public --add-port=80/tcp
+firewall-offline-cmd --zone=public --add-port=443/tcp
+
+%end
