@@ -1,0 +1,59 @@
+---
+- name: Build the containerized Microshift image
+  hosts: osbuild_nodes
+  tags: build_microshift_image
+  become: true
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: Template out MicroShift blueprint
+      ansible.builtin.template:
+        src: templates/rhde-microshift.toml.j2
+        dest: "{{ blueprint_path }}/{{ blueprint_name }}.toml"
+        mode: 0644
+
+    - name: Add the MicroShift blueprint 
+      ansible.builtin.shell: |
+        composer-cli blueprints push {{ blueprint_path }}/{{ blueprint_name }}.toml
+
+    - name: Start the RHDE Microshift image build
+      ansible.builtin.shell: |
+        composer-cli compose start-ostree {{ blueprint_name }} rhel-edge-container
+      register: compose_start
+    
+    - ansible.builtin.set_fact:
+        build_uuid: "{{ compose_start.stdout_lines | regex_search('[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}') }}"
+
+    - name: Wait for build to complete
+      ansible.builtin.shell: |
+        composer-cli compose status | grep {{ build_uuid }} | grep FINISHED
+      register: compose_status
+      until: compose_status.rc == 0
+      retries: 360
+      delay: 10
+
+    - name: Download finished image
+      ansible.builtin.shell: composer-cli compose image {{ build_uuid }}
+      args:
+        chdir: "{{ image_dir }}"
+        creates: "{{ build_uuid }}-container.tar"
+
+    - name: Load the image
+      containers.podman.podman_load:
+        input: "{{ image_dir }}/{{ build_uuid }}-container.tar"
+      register: image_load_result
+    
+    - name: Tag the image
+      containers.podman.podman_tag:
+        image: "{{ image_load_result.image.Id }}"
+        target_names:
+          - "{{ blueprint_name }}"
+
+    - name: Start the rhde-microshift container
+      containers.podman.podman_container:
+        name: "{{ blueprint_name }}"
+        image: "{{ blueprint_name }}"
+        state: started
+        rm: yes
+        ports:
+          - "8080:8080"
