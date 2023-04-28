@@ -9,17 +9,33 @@ Thanks to [Ben Schmaus](https://github.com/schmaustech) for the detailed informa
 
 TODO
 
-## Preparation of the build node
-Execute the `prepare_build_node.yaml` to configure the build node for MicroShift builds.
+## Full build lifecycle
+The `main.yaml` file recalls all the necessary playbooks, in the exact order, to prepare the build node,
+build the Microshift container image and create the final RHDE ISO.
 ```
-$ ansible-playbook -i inventory.yaml prepare_build_node.yaml
+$ ansible-playbook -i inventory.yaml main.yaml
+```
+
+## Preparation of the build node
+To prepare the build node launch the `00-prepare-build-node.yaml`. This playbook configures the build node for MicroShift builds.
+```
+$ ansible-playbook -i inventory.yaml 00-prepare-build-node.yaml
 ```
 
 The preparation process will take quite a long time to sync the Microshift local repo, be patient.
 
 ## Build the Microshift release
+To build the Microshift release in a container image launche the `01-build-microshift-image.yaml`.
+```
+$ ansible-playbook -i inventory.yaml 01-build-microshift-image.yaml
+```
 
-TODO
+## Create the final RHDE ISO
+To create a bootable, ZTP capable RHDE ISO, launch the `02-create-rhde-iso.yaml` playbook:
+```
+$ ansible-playbook -i inventory.yaml 02-create-rhde-iso.yaml
+```
+
 
 ## Authors
 Gianni Salinetti <gsalinet@redhat.com>
