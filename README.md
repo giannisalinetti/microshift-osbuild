@@ -7,7 +7,26 @@ Thanks to [Ben Schmaus](https://github.com/schmaustech) for the detailed informa
 
 ## Creation of RHEL 8 build node VM
 
-TODO
+To deploy the VM on Linux with KVM/Libvirt, download the RHEL 8.7 qcow2 image file from the official [RHEL download page](https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.7/x86_64/product-software).
+
+With the `virt-customize` tool, customize the image to disable the cloud-init service and add a root password:
+```
+$ virt-customize -a <qcow2 image file name> --root-password password:<password> --uninstall cloud-init
+```
+
+To import the VM use the `virt-manager` console or the `virt-install` CLI. The following example 
+shows how to import the VM from command line:
+```
+$ sudo  virt-install \
+  --name rhel8-osbuild \
+  --memory 4096 \
+  --vcpus 2 \
+  --disk /path/to/imported/disk.qcow2,size=20 \
+  --import \
+  --os-variant rhel8.7
+```
+  
+  > **_IMPORTANT_** The imported disk must have a total size of at least 20GiB and a minimum available size of 16GiB to allow sufficiente space for the builds.
 
 ## Full build lifecycle
 The `main.yaml` file recalls all the necessary playbooks, in the exact order, to prepare the build node,
