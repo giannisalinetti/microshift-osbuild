@@ -39,9 +39,13 @@ new_iso_path: "{{ gen_iso_path }}/new_iso"
 
 # Kickstart file parameters
 timezone: Europe/Rome
+# When testing on QEMU/KVM with the Virtio device type, replace sda with vda
+rhde_disk: sda
+rootlv_percent: 90
 rhde_username: gbsalinetti
 rhde_root_password: "{{ 'redhat' | password_hash }}"
 rhde_user_password: "{{ 'redhat' | password_hash }}"
+ostree_edge_repo: "http://remoteupdates.schmaustech.com:8000/repo"
 pull_secret: <PUT YOUR PULL SECRET HERE>
 
 

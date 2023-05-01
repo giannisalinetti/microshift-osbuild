@@ -3,13 +3,13 @@ keyboard --xlayouts='us'
 lang en_US.UTF-8
 timezone {{ timezone }} --isUtc
 zerombr
-ignoredisk --only-use=sda
+ignoredisk --only-use={{ rhde_disk }}
 clearpart --all --initlabel
 part /boot/efi --size 512 --asprimary --fstype=vfat --ondrive=sda
 part /boot --size 1024 --asprimary --fstype=xfs --ondrive=sda
 part pv.2 --size 1 --grow --fstype=xfs --ondrive=sda
 volgroup rhel --pesize=32768 pv.2
-logvol / --fstype xfs --vgname rhel --size=98304 --name=root
+logvol / --fstype xfs --vgname rhel --percent={{ rootlv_percent }} --name=root
 reboot
 text
 rootpw --iscrypted {{ rhde_root_password }}
@@ -21,7 +21,7 @@ ostreesetup --nogpg --url=file:///run/install/repo/ostree/repo --osname=rhel --r
 
 echo -e '{{rhde_username }}\tALL=(ALL)\tNOPASSWD: ALL' >> /etc/sudoers
 
-echo -e 'url=http://remoteupdates.schmaustech.com:8000/repo' >> /etc/ostree/remotes.d/edge.conf
+echo -e 'url={{ ostree_edge_repo }}' >> /etc/ostree/remotes.d/edge.conf
 
 mkdir -p /etc/crio
 cat > /etc/crio/openshift-pull-secret << PULLSECRETEOF
