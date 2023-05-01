@@ -89,16 +89,29 @@
         src: "{{ gen_iso_path }}/{{ rhel_boot_iso_filename }}"
         state: unmounted
 
-    - name: Copy custom files to the new ISO directory
+    - name: Copy ks.cfg file to the new ISO directory
       ansible.builtin.copy:
-        src: "{{ item }}"
+        src: "{{ gen_iso_path }}/generate_iso/ks.cfg"
         dest: "{{ new_iso_path }}/"
         remote_src: yes
-      loop:
-        - "{{ gen_iso_path }}/generate_iso/isolinux.cfg"
-        - "{{ gen_iso_path }}/generate_iso/grub.cfg"
-        - "{{ gen_iso_path }}/generate_iso/ks.cfg"
-        - "{{ gen_iso_path }}/generate_iso/ostree"
+    
+    - name: Copy isolinux.cfg file to the new ISO directory
+      ansible.builtin.copy:
+        src: "{{ gen_iso_path }}/generate_iso/isolinux.cfg"
+        dest: "{{ new_iso_path }}/isolinux/"
+        remote_src: yes
+    
+    - name: Copy grub.cfg file to the new ISO directory
+      ansible.builtin.copy:
+        src: "{{ gen_iso_path }}/generate_iso/grub.cfg"
+        dest: "{{ new_iso_path }}/EFI/BOOT/"
+        remote_src: yes
+    
+    - name: Copy ostree folder to the new ISO directory
+      ansible.builtin.copy:
+        src: "{{ gen_iso_path }}/generate_iso/ostree"
+        dest: "{{ new_iso_path }}/"
+        remote_src: yes
 
     - name: Generate final ISO file
       shell: >
