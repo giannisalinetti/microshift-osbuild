@@ -28,12 +28,27 @@ $ sudo  virt-install \
   
   > **_IMPORTANT_** The imported disk must have a total size of at least 20GiB and a minimum available size of 16GiB to allow sufficiente space for the builds.
 
+## Customize variables
+
+The `vars.yaml` file contains all the variables used in the project.
+Customize paths, passowrds, secrets and tokens with your values.
+
+### Generate offline token
+First, obtain a valid offline token from Red Hat. To generate it, go to https://access.redhat.com/management/api and 
+click on the **GENERATE TOKEN** button.
+
+Set the `api_token` variable in the `vars.yaml` file with the obtained token.
+
 ## Full build lifecycle
 The `main.yaml` file recalls all the necessary playbooks, in the exact order, to prepare the build node,
 build the Microshift container image and create the final RHDE ISO.
 ```
 $ ansible-playbook -i inventory.yaml main.yaml
 ```
+
+### Update pull secret
+In order to correctly pull images, Microshift needs a pull secret that is injected in the image.
+To inject a valid pull secret, download it from the [Red Hat Hybrid Cloud Console](https://console.redhat.com/openshift) and assigh it to the `pull_secret` variable.
 
 ## Preparation of the build node
 To prepare the build node launch the `00-prepare-build-node.yaml`. This playbook configures the build node for MicroShift builds.

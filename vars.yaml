@@ -42,11 +42,11 @@ timezone: Europe/Rome
 rhde_username: gbsalinetti
 rhde_root_password: "{{ 'redhat' | password_hash }}"
 rhde_user_password: "{{ 'redhat' | password_hash }}"
-pull_secret: PUTYOURPULLSECRETHERE
+pull_secret: <PUT YOUR PULL SECRET HERE>
 
 
 # Red Hat API Token.
-api_token: eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJhZDUyMjdhMy1iY2ZkLTRjZjAtYTdiNi0zOTk4MzVhMDg1NjYifQ.eyJpYXQiOjE2ODI2Mjk5MTUsImp0aSI6ImNkYjNhOGZiLTM2MDAtNGNhYy1iOWZlLTNkZTJjNjRlMmNjZiIsImlzcyI6Imh0dHBzOi8vc3NvLnJlZGhhdC5jb20vYXV0aC9yZWFsbXMvcmVkaGF0LWV4dGVybmFsIiwiYXVkIjoiaHR0cHM6Ly9zc28ucmVkaGF0LmNvbS9hdXRoL3JlYWxtcy9yZWRoYXQtZXh0ZXJuYWwiLCJzdWIiOiJmOjUyOGQ3NmZmLWY3MDgtNDNlZC04Y2Q1LWZlMTZmNGZlMGNlNjpnYnNhbGluZXR0aSIsInR5cCI6Ik9mZmxpbmUiLCJhenAiOiJyaHNtLWFwaSIsInNlc3Npb25fc3RhdGUiOiIzNmY1ZjZhNS03ZTIxLTRjYmQtODFmOC0xZmQxMGNkODI0M2UiLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwic2lkIjoiMzZmNWY2YTUtN2UyMS00Y2JkLTgxZjgtMWZkMTBjZDgyNDNlIn0.m2mVD2zF70VXPPH_3ZGZULEeTB-Mog3Jgnp1tPOE8fA
+api_token: <REPLACE WITH A VALID API TOKEN>
 # RHEL 8.7 boot ISO checksum
 rhel_boot_checksum: 47e5dbb37b5970f583d0852973af86cc1b522ee1f1e2374c59204583c14717fa
 rhel_boot_iso_filename: rhel-8.7-x86_64-boot.iso
